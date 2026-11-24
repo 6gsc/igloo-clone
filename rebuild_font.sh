@@ -13,11 +13,10 @@ python3 - "$ROOT" "$WORK" <<'PYEOF'
 import re, sys, json
 root, work = sys.argv[1], sys.argv[2]
 js = open(f'{root}/assets/App3D-d68cb154.js', encoding='utf-8', errors='ignore').read()
-# 抓全部字符串字面量内容(单双引号+反引号)，宁多勿漏
-lits = re.findall(r'"([^"]*)"', js) + re.findall(r"'([^']*)'", js) + re.findall(r'`([^`]*)`', js)
-text = ' '.join(lits)
+# 直接扫描 bundle 内全部非 ASCII 字符 + 基础 ASCII，避免转义引号导致正则漏字
+non_ascii = ''.join(c for c in set(js) if ord(c) >= 0x80 and ord(c) < 0x10000)
 ascii_set = ''.join(chr(c) for c in range(0x20, 0x7F)) + '©®´·\u2018\u2019\u201c\u201d€'
-chars = sorted(set(ascii_set + text))
+chars = sorted(set(ascii_set + non_ascii))
 open(f'{work}/charset.txt', 'w').write('\n'.join('0x%04X' % ord(c) for c in chars) + '\n')
 print(f'  字符总数: {len(chars)} (含 bundle 全部字符串, 图集会稍大)')
 PYEOF
