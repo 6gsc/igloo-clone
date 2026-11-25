@@ -10,15 +10,23 @@ trap 'rm -rf "$WORK"' EXIT
 
 echo "[1/5] 从 App3D bundle 提取全部文案中的字符..."
 python3 - "$ROOT" "$WORK" <<'PYEOF'
-import re, sys, json
+import os, sys
 root, work = sys.argv[1], sys.argv[2]
-js = open(f'{root}/assets/App3D-d68cb154.js', encoding='utf-8', errors='ignore').read()
-# 直接扫描 bundle 内全部非 ASCII 字符 + 基础 ASCII，避免转义引号导致正则漏字
-non_ascii = ''.join(c for c in set(js) if ord(c) >= 0x80 and ord(c) < 0x10000)
-ascii_set = ''.join(chr(c) for c in range(0x20, 0x7F)) + '©®´·\u2018\u2019\u201c\u201d€'
-chars = sorted(set(ascii_set + non_ascii))
-open(f'{work}/charset.txt', 'w').write('\n'.join('0x%04X' % ord(c) for c in chars) + '\n')
-print(f'  字符总数: {len(chars)} (含 bundle 全部字符串, 图集会稍大)')
+chars = set(chr(c) for c in range(0x20, 0x7F)) | set('©®´·‘’“”€→↓↑←×—…')
+for fn in [
+    'assets/App3D-d68cb154.js',
+    'assets/App3D-form-a-v6.js',
+]:
+    p = os.path.join(root, fn)
+    if os.path.exists(p):
+        s = open(p, encoding='utf-8', errors='ignore').read()
+        for ch in s:
+            o = ord(ch)
+            if o >= 0x80 and not (0xD800 <= o <= 0xDFFF) and o < 0x10000:
+                chars.add(ch)
+chars_sorted = sorted(chars)
+open(f'{work}/charset.txt', 'w').write('\n'.join('0x%04X' % ord(c) for c in chars_sorted) + '\n')
+print(f'  字符总数: {len(chars_sorted)} (全量非ASCII + 可打印ASCII, 零漏字)')
 PYEOF
 
 echo "[2/5] 合并字体 (拉丁=Plex 等宽 metrics, 中文=Arial)..."
