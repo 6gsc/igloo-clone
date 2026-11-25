@@ -16,6 +16,7 @@ chars = set(chr(c) for c in range(0x20, 0x7F)) | set('©®´·‘’“”€→
 for fn in [
     'assets/App3D-d68cb154.js',
     'assets/App3D-form-a-v6.js',
+    'assets/App3D-v8.js',
 ]:
     p = os.path.join(root, fn)
     if os.path.exists(p):
