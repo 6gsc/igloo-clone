@@ -1,8 +1,9 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const path = require('node:path');
 const pw = require(process.env.PLAYWRIGHT_ROOT || `${process.env.HOME}/.npm/_npx/f0a362733743bae2/node_modules/playwright`);
-const url = process.argv[2] || 'http://127.0.0.1:8798/';
-const artifacts = process.argv[3] || '/Users/inoplanet/Desktop/个人经验/igloo-aurora-preview/shots';
+const url = process.argv[2] || 'http://127.0.0.1:8791/';
+const artifacts = process.argv[3] || path.join(__dirname, '..', 'shots');
 
 (async () => {
   fs.mkdirSync(artifacts, { recursive: true });
@@ -17,7 +18,7 @@ const artifacts = process.argv[3] || '/Users/inoplanet/Desktop/个人经验/iglo
       }
     });
 
-    await page.route('**/App3D-v8.js', async r => {
+    await page.route('**/App3D-aurora-preview-v8.js', async r => {
       const response = await r.fetch();
       const source = await response.text();
       const pat1 = /async init\(\)\{const e=await zt\.batched\("aurora-monolith-v5\.drc"\)/;
@@ -105,7 +106,16 @@ const artifacts = process.argv[3] || '/Users/inoplanet/Desktop/个人经验/iglo
     await jumpToSceneProgress(3, 0.76, 1500);
     await page.screenshot({ path: `${artifacts}/v8-10-bottom-links.png` });
 
-    // 11. Test clicking Hero Quadrant [03] BettaFish directly
+    // 11. Click Project 2 sculpture (scene 2, progress 0.78) to verify AI Workflow detail room
+    await jumpToSceneProgress(2, 0.78, 1800);
+    await page.mouse.click(720, 450);
+    await page.waitForTimeout(2600);
+    await page.screenshot({ path: `${artifacts}/v8-13-project2-workflow-detail.png` });
+    await page.evaluate(() => { window.__mainCtrl.navigateToSection('home', '/'); });
+    await page.waitForFunction(() => window.__mainCtrl.isDetailOpen === false, {}, { timeout: 10000 });
+    await page.waitForTimeout(700);
+
+    // 12. Click Hero Quadrant [02] Inovance (top-right) to verify Inovance detail room
     await page.evaluate(() => {
       const ctrl = window.__mainCtrl;
       ctrl.stopAutoCenter();
@@ -115,10 +125,30 @@ const artifacts = process.argv[3] || '/Users/inoplanet/Desktop/个人经验/iglo
       ctrl.autoCenter.lastTarget = 0;
     });
     await page.waitForTimeout(900);
-    await page.evaluate(() => { window.heroForTest._lockHover = 2; });
+    await page.evaluate(() => { window.heroForTest._lockHover = 1; });
     await page.waitForTimeout(200);
-    await page.mouse.click(460, 560);
+    await page.mouse.click(980, 360);
     await page.waitForTimeout(2600);
+    await page.screenshot({ path: `${artifacts}/v8-12-intern2-inovance-detail.png` });
+    await page.evaluate(() => { window.__mainCtrl.navigateToSection('home', '/'); });
+    await page.waitForFunction(() => window.__mainCtrl.isDetailOpen === false, {}, { timeout: 10000 });
+    await page.waitForTimeout(700);
+
+    // 13. Test clicking Hero Quadrant [01] NIO directly (top-left)
+    await page.evaluate(() => {
+      const ctrl = window.__mainCtrl;
+      ctrl.stopAutoCenter();
+      ctrl.scroll.y = 0;
+      ctrl.scroll.targetY1 = 0;
+      ctrl.scroll.targetY2 = 0;
+      ctrl.autoCenter.lastTarget = 0;
+    });
+    await page.waitForTimeout(900);
+    await page.evaluate(() => { window.heroForTest._lockHover = 0; });
+    await page.waitForTimeout(200);
+    await page.mouse.click(460, 360);
+    await page.waitForTimeout(2600);
+    await page.screenshot({ path: `${artifacts}/v8-11-intern1-nio-detail.png` });
     const finalState = await page.evaluate(() => ({
       sceneCount: window.__mainCtrl.scrollComposers.length,
       internCubeCount: window.__mainCtrl.scrollComposers[1].passes[0].scene.cubes.length,
@@ -135,7 +165,7 @@ const artifacts = process.argv[3] || '/Users/inoplanet/Desktop/个人经验/iglo
     assert.equal(finalState.internCubeCount, 2);
     assert.equal(finalState.projectItemCount, 2);
     assert.equal(finalState.heroClickDetailOpen, true);
-    assert.equal(finalState.heroClickDetailIndex, 2);
+    assert.equal(finalState.heroClickDetailIndex, 0);
   } finally {
     await browser.close();
   }

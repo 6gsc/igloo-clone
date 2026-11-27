@@ -17,6 +17,7 @@ for fn in [
     'assets/App3D-d68cb154.js',
     'assets/App3D-form-a-v6.js',
     'assets/App3D-v8.js',
+    'assets/App3D-aurora-preview-v8.js',
 ]:
     p = os.path.join(root, fn)
     if os.path.exists(p):

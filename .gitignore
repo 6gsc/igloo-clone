@@ -1,0 +1,7 @@
+.DS_Store
+.netlify/
+*.bak
+node_modules/
+deploy-dist/
+tools/preview-chip/
+shots/v8-*.png
