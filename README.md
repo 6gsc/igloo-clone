@@ -3,7 +3,7 @@
 基于 Three.js / WebGL 的 4 场景 3D 个人主页与作品集。
 
 - **线上地址**：https://congcong-gui.netlify.app
-- **GitHub 仓库**：`6gsc/igloo-clone`（私有仓库，`main` 分支）
+- **GitHub 仓库**：`6gsc/igloo-clone`（公开仓库，`main` 分支）
 
 ## 目录结构
 
@@ -40,7 +40,7 @@
 
 ## 多设备协作更新流程
 
-1. **首次在新设备拉取**（需登录 GitHub 账号 `6gsc` 或被添加为仓库 Collaborator）：
+1. **首次在新设备拉取**（公开仓库，任何设备无需登录即可直接拉取或下载 ZIP；如需推送改动回仓库，则需登录 GitHub 账号 `6gsc` 或被添加为仓库 Collaborator）：
    ```bash
    git clone https://github.com/6gsc/igloo-clone.git
    cd igloo-clone
